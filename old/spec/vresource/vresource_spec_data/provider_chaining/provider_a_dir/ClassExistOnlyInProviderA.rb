@@ -1,0 +1,3 @@
+class ClassExistOnlyInProviderA
+#  ClassExistOnlyInProviderA
+end

@@ -1,0 +1,1 @@
+class B2 < NS1::A2; end

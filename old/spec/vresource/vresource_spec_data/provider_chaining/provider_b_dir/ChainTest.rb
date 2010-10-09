@@ -1,0 +1,3 @@
+class ChainTest
+# "ProviderB"
+end
