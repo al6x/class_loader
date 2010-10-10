@@ -1,60 +1,66 @@
 require 'rake'
+require 'fileutils'
+current_dir = File.expand_path(File.dirname(__FILE__))
+Dir.chdir current_dir
+
+
+# 
+# Specs
+# 
 require 'spec/rake/spectask'
 
-Dir.chdir File.dirname(__FILE__)	
-
-# Specs
 task :default => :spec
 
 Spec::Rake::SpecTask.new('spec') do |t|
 	t.spec_files = FileList["spec/**/*_spec.rb"].select{|f| f !~ /\/_/}
-  t.libs = ['lib'].collect{|f| "#{File.dirname __FILE__}/#{f}"}
-  # t.spec_opts = ["--backtrace"]
+  t.libs = ["#{current_dir}/lib"]
 end
 
+
+# 
 # Gem
+# 
 require 'rake/clean'
 require 'rake/gempackagetask'
-require 'fileutils'
 
+gem_options = {
+  :name => "class_loader",
+  :version => "0.3.5",
+  :summary => "Automatically finds and loads classes",
+  :dependencies => %w()
+}
+
+gem_name = gem_options[:name]
 spec = Gem::Specification.new do |s|
-  s.name = "class-loader"
-  s.version = "0.3.4" 
-  s.summary = "Automatically finds and loads classes"
-  s.description = "Automatically finds and loads classes"
+  gem_options.delete(:dependencies).each{|d| s.add_dependency d}
+  gem_options.each{|k, v| s.send "#{k}=", v}
+  
+  s.name = gem_name
   s.author = "Alexey Petrushin"
-  # s.email = ""
-  s.homepage = "http://github.com/alexeypetrushin/class-loader"
+  s.homepage = "http://github.com/alexeypetrushin/#{gem_options[:name]}"
+  s.require_path = "lib"
+  s.files = (%w{Rakefile readme.md} + Dir.glob("{lib,spec}/**/*"))
   
   s.platform = Gem::Platform::RUBY
-  s.has_rdoc = true
-  
-  s.files = (['Rakefile', 'readme.md'] + Dir.glob("{lib,spec}/**/*"))
-  
-  s.require_paths = ["lib"]
+  s.has_rdoc = true  
 end
 
-PACKAGE_DIR = "#{File.expand_path File.dirname(__FILE__)}/build"
-
+package_dir = "#{current_dir}/build"
 Rake::GemPackageTask.new(spec) do |p|
-  package_dir = PACKAGE_DIR
-# FileUtils.mkdir package_dir unless File.exist? package_dir  
   p.need_tar = true if RUBY_PLATFORM !~ /mswin/
   p.need_zip = true
   p.package_dir = package_dir
 end
 
-# CLEAN.include [ 'pkg', '*.gem']
-
 task :push do
-  dir = Dir.chdir PACKAGE_DIR do
-    gem_file = Dir.glob("class-loader*.gem").first
-    system "gem push #{gem_file}"
-  end
+  # dir = Dir.chdir package_dir do
+  gem_file = Dir.glob("#{package_dir}/#{gem_name}*.gem").first
+  system "gem push #{gem_file}"
+  # end
 end
 
 task :clean do
-  system "rm -r #{PACKAGE_DIR}"
+  system "rm -r #{package_dir}"
 end
 
-task :release => [:gem, :push, :clean] 
+task :release => [:gem, :push, :clean]
