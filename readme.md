@@ -32,6 +32,10 @@ you can specify multiple autoload directories, and tell it to watch them
 
 Also you can use CamelCase notation or provide your own class_name/file_path translator, or even provide your own custom resource adapter that for example will look for classes on the net and download them.
 
+There's currently a known bug in Ruby 1.8.x - class loading isn't thread safe, so in production you should preload all your classes
+
+	ClassLoader.preload! if app_in_production?
+
 ## Installation
 
 	$ gem install class-loader
