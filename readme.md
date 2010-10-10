@@ -23,9 +23,10 @@ no need for
 	# require 'animals/dog'
 	# require 'app'
 	
-There's also more, you can specify multiple autoload directories, and tell it to watch them.
+you can specify multiple autoload directories, and tell it to watch them.
 
 	autoload_dir '/your_app/lib', true # <= provide true as the second argument
+	autoload_dir '/your_app/another_lib'	
 	
 **Note**: In the dog.rb we write just the "class Dog; end", instead of "module Animals; class Dog; end; end', and there are no really the 'Animals' module, ClassLoader smart enough to figure it out that there's should be one by looking at files structure and it will generate it on the fly.
 
