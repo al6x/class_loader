@@ -23,7 +23,7 @@ no need for
 	# require 'animals/dog'
 	# require 'app'
 	
-you can specify multiple autoload directories, and tell it to watch them.
+you can specify multiple autoload directories, and tell it to watch them
 
 	autoload_dir '/your_app/lib', true # <= provide true as the second argument
 	autoload_dir '/your_app/another_lib'	
