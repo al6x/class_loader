@@ -14,9 +14,9 @@ Let's say your application has the following structure
 Just point ClassLoader to the directory(ies) your classes are located and it will find and load them automatically
 
 	require 'class_loader'
-	**autoload_dir** '/your_app/lib'**
+	autoload_dir '/your_app/lib'
 	
-	**Zoo**.add Animals::Dog.new** # <= all classes loaded automatically
+	Zoo.add Animals::Dog.new # <= all classes loaded automatically
 	
 no need for
 
@@ -25,7 +25,7 @@ no need for
 	
 There's also more, you can specify multiple autoload directories, and tell it to watch them.
 
-	autoload_dir '/your_app/lib', **true**
+	autoload_dir '/your_app/lib', true # <= provide true as the second argument
 	
 **Note**: In the dog.rb we write just the "class Dog; end", instead of "module Animals; class Dog; end; end', and there are no really the 'Animals' module, ClassLoader smart enough to figure it out that there's should be one by looking at files structure and it will generate it on the fly.
 
