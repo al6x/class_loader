@@ -121,11 +121,11 @@ module VResource
     
     # Different Providers can use different class path interpretation.
     # So we return virtual path only if this path really exist.
-    def translate_class_name_to_virtual_file_name class_name
+    def class_to_virtual_file class_name
       path = ensure_exist!(real_class_path(class_name), "Class '#{class_name}' doesn't Exist!")      
       File.expand_path path
     end
-    cache_method_with_params :translate_class_name_to_virtual_file_name
+    cache_method_with_params :class_to_virtual_file
     
     def reloader
       @reloader ||= FileSystemReloader.new directories

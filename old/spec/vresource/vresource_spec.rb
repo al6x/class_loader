@@ -73,8 +73,8 @@ describe "VResource" do
   end
   
   it "Class to Path" do
-    lambda{VResource.translate_class_name_to_virtual_file_name("A::B::C")}.should raise_error(/doesn't exist!/)
-    VResource.translate_class_name_to_virtual_file_name("ResourceTest::Test").should =~ /ResourceTest\/Test/
+    lambda{VResource.to_file_path("A::B::C")}.should raise_error(/doesn't exist!/)
+    VResource.to_file_path("ResourceTest::Test").should =~ /ResourceTest\/Test/
   end
       
   it "ResourceProvider Chaining" do                     

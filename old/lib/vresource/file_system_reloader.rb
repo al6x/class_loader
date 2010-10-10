@@ -74,7 +74,7 @@ module VResource
         begin
           if path =~ /\.rb$/
             path = path.sub(/\.rb$/, "")
-            class_name = path_to_class(path)
+            class_name = path_to_class_name(path)
                                   
             klass = eval class_name, TOPLEVEL_BINDING, __FILE__, __LINE__
             
@@ -86,10 +86,10 @@ module VResource
             if path =~ /\.res/
               class_path = path.sub(/\.res.+/, "")
               resource_name = path.sub("#{class_path}.res/", "")
-              class_name = path_to_class class_path
+              class_name = path_to_class_name class_path
             else
               resource_name = path.sub(/.+\./, "")
-              class_name = path_to_class path.sub(/\.#{resource_name}$/, "")
+              class_name = path_to_class_name path.sub(/\.#{resource_name}$/, "")
             end 
             klass = eval class_name, TOPLEVEL_BINDING, __FILE__, __LINE__
             return :resource, klass, resource_name
@@ -99,7 +99,7 @@ module VResource
         end
       end
     
-      def path_to_class path
+      def path_to_class_name path
         base_dir = directories.select{|f| path.include? f}.max{|a, b| a.size <=> b.size}
         path.gsub(/^#{base_dir}\//, "").gsub("/", "::")
       end

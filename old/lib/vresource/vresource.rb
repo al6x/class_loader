@@ -123,10 +123,10 @@ module VResource
       end
     end                        
     
-    def translate_class_name_to_virtual_file_name class_name
+    def to_file_path class_name
       providers.each do |p|
         begin
-          return p.translate_class_name_to_virtual_file_name class_name 
+          return p.to_file_path class_name 
         rescue NotExist;
         end
       end

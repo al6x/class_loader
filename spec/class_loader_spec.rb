@@ -2,20 +2,13 @@ require "#{File.expand_path(File.dirname(__FILE__))}/helper"
 require "class_loader"
 
 describe ClassLoader do  
-  def autoload_dir *args
-    ClassLoader.autoload_dir *args
-  end
-  
   before :all do
-    @dir = __FILE__.sub(/\.rb$/, '')
-
-    # @provider = VResource::FileSystemProvider.new(@dir)
-    # VResource.add_resource_provider @provider
-    # VResource.hook!
+    @dir = prepare_spec_data __FILE__
   end
   
   after :all do
-    # VResource.unhook!
+    clean_spec_data __FILE__
+
     remove_constants %w(
       BasicSpec
       OnlyOnceSpec
@@ -24,35 +17,24 @@ describe ClassLoader do
       AnonymousSpec
       AnotherNamespace
       ClassReloadingSpec
-    )    
+      UnloadOldClass
+      PreloadingSpec
+      UnderscoredNamespace
+    )        
   end
   
   after :each do
-    ClassLoader.autoload_dir = []
-    ClassLoader.observers = []
-    ClassLoader.error_on_defined_constant = false
+    ClassLoader.clear
   end
   
   it "should load classes from class path" do
     autoload_dir "#{@dir}/basic"
+    
     BasicSpec
     BasicSpec::SomeNamespace::SomeClass
   end
     
   it "should load classes only once" do
-    # class CustomObserver
-    #   attr_reader :list
-    #   def initialize
-    #     @list = []
-    #   end
-    #   
-    #   def update_class klass
-    #     @list << klass
-    #   end
-    # end
-    # obs = CustomObserver.new
-    # ClassLoader.add_observer obs
-    
     autoload_dir "#{@dir}/only_once"
     
     check = mock
@@ -64,13 +46,6 @@ describe ClassLoader do
     
     OnlyOnceSpec
     OnlyOnceSpec
-
-
-    # LoadCount
-    # LoadCount
-    # ClassLoader.delete_observers
-    
-    # obs.list.inject(0){|count, klass| klass == ::LoadCount ? count + 1 : count}.should == 1
   end
   
   it "should resolve is namespace a class or module" do
@@ -108,39 +83,57 @@ describe ClassLoader do
     
     AnotherNamespace::NamespaceA
     ClassLoader.error_on_defined_constant = true
-    lambda{::AnotherNamespace::NamespaceB}.should raise_error(/Class '.+' is not defined in the '.+' Namespace!/)
+    lambda{
+      AnotherNamespace::NamespaceB
+    }.should raise_error(/Class '.+' is not defined in the '.+' Namespace!/)
   end
+  
+  describe "reloading" do  
+    it "should reload class files" do
+      spec_dir = "#{@dir}/class_reloading"
+      fname = "#{spec_dir}/ClassReloadingSpec.rb"
+      autoload_dir spec_dir
 
-  it "should reload class files" do
-    spec_dir = "#{@dir}/class_reloading_spec"
-    fname = "#{spec_dir}/ClassReloadingSpec.rb"
-    autoload_dir spec_dir
-
-    code = <<-RUBY
+      code = <<-RUBY
 class ClassReloadingSpec
   def self.check; :value end
 end
 RUBY
     
-    File.open(fname){|f| f.write code}
+      File.open(fname, 'w'){|f| f.write code}
     
-    ClassReloadingSpec.check.should == :value
+      ClassReloadingSpec.check.should == :value
 
-    code = <<-RUBY
+      code = <<-RUBY
 class ClassReloadingSpec
   def self.check; :another_value end
 end
 RUBY
 
-    File.open(fname){|f| f.write code}
+      File.open(fname, 'w'){|f| f.write code}
     
-    ClassLoader.reload_class(ClassReloading.name)
-    ClassReloadingSpec.check.should == :another_value
+      ClassLoader.reload_class(ClassReloadingSpec.name)
+      ClassReloadingSpec.check.should == :another_value
+    end
+  
+    it "should unload old classes before reloading" do
+      autoload_dir "#{@dir}/unload_old_class"
+      UnloadOldClass.instance_variable_set "@value", :value
+      ClassLoader.reload_class(UnloadOldClass.name)
+      UnloadOldClass.instance_variable_get("@value").should == nil
+    end
   end
   
-  it "add check that it actually unload old classes (remove old class constant before reloading)"
+  it "should be able to preload all classes in production" do
+    autoload_dir "#{@dir}/preloading"
+    Object.const_defined?(:PreloadingSpec).should be_false    
+    ClassLoader.preload!
+    Object.const_defined?(:PreloadingSpec).should be_true
+  end  
   
-  it "should be able to preload all classes in production"
-  
-  it "should watch class files for changes (if specified as autoload_dir(dir, true))"
+  it "underscored smoke test" do
+    autoload_dir "#{@dir}/underscored"
+    
+    UnderscoredNamespace::UnderscoredClass
+  end
 end
