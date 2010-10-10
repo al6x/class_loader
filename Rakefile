@@ -19,9 +19,9 @@ require 'fileutils'
 
 spec = Gem::Specification.new do |s|
   s.name = "class-loader"
-  s.version = "0.3.1" 
-  s.summary = "Makes any directory looks like Ruby Gem"
-  s.description = "Makes any directory looks like Ruby Gem"
+  s.version = "0.3.4" 
+  s.summary = "Automatically finds and loads classes"
+  s.description = "Automatically finds and loads classes"
   s.author = "Alexey Petrushin"
   # s.email = ""
   s.homepage = "http://github.com/alexeypetrushin/class-loader"

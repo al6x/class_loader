@@ -1,4 +1,4 @@
-# ClassLoader automatically finds and loads classes 
+# Automatically finds and loads classes 
 
 ## Overview
 There's only one method - :autoload_dir, kind of turbocharged :autoload, it understands namespaces, figure out dependencies and can watch and reload changed files.
