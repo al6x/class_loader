@@ -57,4 +57,4 @@ task :clean do
   system "rm -r #{PACKAGE_DIR}"
 end
 
-task :release => [:gem, :push, :clean]
+task :release => [:gem, :push, :clean] 

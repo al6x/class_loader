@@ -1,2 +1,2 @@
 class UnderscoredClass
-end
+end 
