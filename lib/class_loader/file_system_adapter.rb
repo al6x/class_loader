@@ -27,11 +27,11 @@ module ClassLoader
     def to_file_path class_name
       file_path, exist = @file_name_cache[class_name] || []
       unless exist
-        file_name = translator.to_file_path class_name
+        normalized_name = translator.to_file_path class_name
         file_path = catch :found do
           # files
           paths.each do |base|
-            try = "#{base}/#{file_name}.rb"
+            try = "#{base}/#{normalized_name}.rb"
             if File.exist? try
               throw :found, try
             end
@@ -39,7 +39,7 @@ module ClassLoader
           
           # dirs
           paths.each do |base|
-            try = "#{base}/#{file_name}"
+            try = "#{base}/#{normalized_name}"
             if File.exist? try
               throw :found, try
             end
@@ -57,20 +57,23 @@ module ClassLoader
       raise "Internal error, file_name should be absolute path (#{normalized_path})!" unless normalized_path =~ /^\//  
       raise "Internal error, file_name should be without .rb suffix (#{normalized_path})!" if normalized_path =~ /\.rb$/  
       
-      if base_path = paths.find{|path| normalized_path.start_with? path}
-        normalized_name = normalized_path.sub(base_path, '')
-        translator.to_class_name(normalized_name)
-      else
-        nil
+      paths.each do |base_path| 
+        if normalized_path.start_with? base_path
+          normalized_name = normalized_path.sub(base_path, '')          
+          if translator.is_it_class? normalized_name
+            return translator.to_class_name(normalized_name)
+          end
+        end
       end
+      nil
     end
     
-    def add_path path, watch = false      
-      path = File.expand_path(path)
-      raise "#{path} already added!" if paths.include? path
+    def add_path base_path, watch = false      
+      base_path = File.expand_path(base_path)
+      raise "#{base_path} already added!" if paths.include? base_path
       
-      paths << path
-      watched_paths << path if watch
+      paths << base_path
+      watched_paths << base_path if watch
     end
     
     def clear
@@ -80,14 +83,14 @@ module ClassLoader
         
     def each_changed_class &block
       if @first_check
-        each_watched_file{|file_path, relative_name| remember_file file_path}
+        each_watched_file{|file_path, file_name| remember_file file_path}
         @first_check = false
       else
-        each_watched_file do |file_path, relative_name|
+        each_watched_file do |file_path, file_name|
           if file_changed? file_path
             remember_file file_path
             
-            normalized_name = relative_name.sub(/\.rb$/, "")
+            normalized_name = file_name.sub(/\.rb$/, "")
             block.call translator.to_class_name(normalized_name)
           end
         end
@@ -106,27 +109,27 @@ module ClassLoader
       end
     end
     
-    protected
-      attr_reader :paths, :watched_paths, :watcher, :watched_files      
-      
-      def each_watched_file &block
-        @watched_paths.each do |base_path|          
-          Dir.glob("#{base_path}/**/*.rb").each do |file_path|
-            relative_name = file_path.sub(base_path, '')
-            if translator.is_it_class? relative_name
-              block.call file_path, relative_name
-            end
+    def each_watched_file &block
+      @watched_paths.each do |base_path|          
+        Dir.glob("#{base_path}/**/*.rb").each do |file_path|
+          file_name = file_path.sub(base_path, '')
+          if translator.is_it_class? file_name
+            block.call file_path, file_name
           end
         end
       end
+    end
+    
+    protected
+      attr_reader :paths, :watched_paths, :watcher, :watched_files      
       
-      def file_changed? path        
-        old_time = watched_files[path]
-        old_time == nil or old_time != File.mtime(path)
+      def file_changed? file_path
+        old_time = watched_files[file_path]
+        old_time == nil or old_time != File.mtime(file_path)
       end
 
-      def remember_file path
-        watched_files[path] = File.mtime(path)
+      def remember_file file_path
+        watched_files[file_path] = File.mtime(file_path)
       end
       
   end

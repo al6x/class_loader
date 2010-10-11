@@ -1,4 +1,4 @@
-require "#{File.expand_path(File.dirname(__FILE__))}/helper"
+require 'rspec_ext'
 require "class_loader"
 
 describe ClassLoader do  

@@ -1,5 +1,8 @@
-require "#{File.expand_path(File.dirname(__FILE__))}/helper"
+require "rspec_ext"
+
+require "class_loader/support"
 require "class_loader/file_system_adapter/camel_case_translator"
+require "class_loader/file_system_adapter/underscored_translator"
 require "class_loader/file_system_adapter"
 require "class_loader/chained_adapter"
 
@@ -61,7 +64,7 @@ describe ClassLoader::FileSystemAdapter do
     lambda{@adapter.add_path "#{@dir}/common"}.should raise_error(/already added/)
   end
   
-  describe "file watching" do  
+  describe "file watching" do      
     def changed_classes
       changed = []
       @adapter.each_changed_class{|c| changed << c}
@@ -80,12 +83,40 @@ describe ClassLoader::FileSystemAdapter do
       @adapter.add_path "#{@dir}/watching", true
       
       changed_classes.should == []        
-
+    
       sleep(1) && write_file("watching/SomeClass.rb", "SomeClass")      
       changed_classes.should == ["SomeClass"]
     
       sleep(1) && write_file("watching/SomeClass.rb", "SomeClass")
       changed_classes.should == ["SomeClass"]
-    end    
+    end
+  end
+  
+  describe "Underscored shouldn't mess with CamelCase" do
+    before :each do
+      @camel_case_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)      
+      @camel_case_adapter.add_path "#{@dir}/shouldnt_mess", true
+      @camel_case_file_path = "#{@dir}/shouldnt_mess/CamelCaseClass.rb"
+      
+      @underscored_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::UnderscoredTranslator)  
+      @underscored_adapter.add_path "#{@dir}/shouldnt_mess", true
+      @underscored_file_path = "#{@dir}/shouldnt_mess/underscored_class.rb"
+    end
+    
+    
+    it "should watch only files understable by it's translator (CamelCase shouldn't load Underscored)" do      
+      watched = []
+      @camel_case_adapter.each_watched_file{|file_path, relative_name| watched << relative_name}
+      watched.should == ["/CamelCaseClass.rb"]
+            
+      watched = []
+      @underscored_adapter.each_watched_file{|file_path, relative_name| watched << relative_name}
+      watched.should == ["/underscored_class.rb"]
+    end
+    
+    it "CamelCase to_class_name shouldn't translate Underscored" do
+      @camel_case_adapter.to_class_name(@camel_case_file_path.sub(/\.rb$/, '')).should == "CamelCaseClass"
+      @underscored_adapter.to_class_name(@underscored_file_path.sub(/\.rb$/, '')).should == "UnderscoredClass"
+    end
   end
 end
