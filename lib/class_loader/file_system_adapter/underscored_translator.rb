@@ -7,5 +7,9 @@ module ClassLoader
     def self.to_file_path class_name
       class_name.sub(/^::/, '').underscore
     end
+    
+    def self.is_it_class? file_name
+      file_name !~ /[A-Z]/
+    end
   end
 end

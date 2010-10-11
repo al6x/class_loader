@@ -132,8 +132,8 @@ module ClassLoader
     # 
     attr_accessor :watch_interval
     def start_watching!
-      unless watching_thread      
-        self.watching_thread = Thread.new do        
+      unless @watching_thread      
+        @watching_thread = Thread.new do        
           while true
             sleep(watch_interval || 2)
             adapter.each_changed_class do |class_name|
@@ -146,9 +146,9 @@ module ClassLoader
     end
 
     def stop_watching!
-      if watching_thread
-        watching_thread.kill
-        self.watching_thread = nil
+      if @watching_thread
+        @watching_thread.kill
+        @watching_thread = nil
       end
     end
     
