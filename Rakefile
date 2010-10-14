@@ -1,8 +1,8 @@
 require 'rake_ext'
 
-gem_spec(
+project(
   :name => "class_loader",
-  :version => "0.3.6",
+  :version => "0.3.7",
   :summary => "Automatically finds and loads classes",
 
   :author => "Alexey Petrushin",
