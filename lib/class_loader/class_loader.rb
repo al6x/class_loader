@@ -11,7 +11,7 @@ module ClassLoader
     attr_accessor :error_on_defined_constant
     def loaded_classes; @loaded_classes ||= {} end            
     
-    def load_class namespace, const, reload = false            
+    def load_class namespace, const, reload = false
       SYNC.synchronize do
         namespace = nil if namespace == Object or namespace == Module
         target_namespace = namespace
@@ -65,8 +65,8 @@ module ClassLoader
         name = class_name.sub(/^#{namespace}::/, "")      
         
         # removing old class
-        class_container = (namespace || Object)
-        class_container.send :remove_const, name if class_container.const_defined? name
+        # class_container = (namespace || Object)
+        # class_container.send :remove_const, name if class_container.const_defined? name
         
         return load_class namespace, name, true
       end

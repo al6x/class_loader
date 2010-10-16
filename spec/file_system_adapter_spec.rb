@@ -1,17 +1,12 @@
 require "rspec_ext"
-
-require "class_loader/support"
-require "class_loader/file_system_adapter/camel_case_translator"
-require "class_loader/file_system_adapter/underscored_translator"
-require "class_loader/file_system_adapter"
-require "class_loader/chained_adapter"
+require "class_loader"
 
 describe ClassLoader::FileSystemAdapter do  
   before :all do
     @dir = prepare_spec_data __FILE__
   end
   
-  before :each do        
+  before :each do
     @fs_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)    
     
     # Actually we are testing both ChainedAdapter and FileSystemAdapter
@@ -107,11 +102,11 @@ describe ClassLoader::FileSystemAdapter do
     it "should watch only files understable by it's translator (CamelCase shouldn't load Underscored)" do      
       watched = []
       @camel_case_adapter.each_watched_file{|file_path, relative_name| watched << relative_name}
-      watched.should == ["/CamelCaseClass.rb"]
+      watched.should == ["CamelCaseClass.rb"]
             
       watched = []
       @underscored_adapter.each_watched_file{|file_path, relative_name| watched << relative_name}
-      watched.should == ["/underscored_class.rb"]
+      watched.should == ["underscored_class.rb"]
     end
     
     it "CamelCase to_class_name shouldn't translate Underscored" do

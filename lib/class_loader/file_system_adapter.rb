@@ -59,7 +59,7 @@ module ClassLoader
       
       paths.each do |base_path| 
         if normalized_path.start_with? base_path
-          normalized_name = normalized_path.sub(base_path, '')          
+          normalized_name = normalized_path.sub(base_path + '/', '')          
           if translator.is_it_class? normalized_name
             return translator.to_class_name(normalized_name)
           end
@@ -102,7 +102,7 @@ module ClassLoader
         Dir.glob("#{base_path}/**/*.rb").each do |file_path|
           normalized_path = file_path.sub(/\.rb$/, "")
           
-          normalized_name = normalized_path.sub(base_path, '')
+          normalized_name = normalized_path.sub(base_path + "/", '')
           class_name = translator.to_class_name(normalized_name)
           block.call class_name
         end
@@ -112,8 +112,9 @@ module ClassLoader
     def each_watched_file &block
       @watched_paths.each do |base_path|          
         Dir.glob("#{base_path}/**/*.rb").each do |file_path|
-          file_name = file_path.sub(base_path, '')
-          if translator.is_it_class? file_name
+          file_name = file_path.sub(base_path + '/', '')
+
+          if translator.is_it_class? file_name            
             block.call file_path, file_name
           end
         end

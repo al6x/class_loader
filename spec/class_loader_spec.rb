@@ -115,13 +115,14 @@ RUBY
       ClassLoader.reload_class(ClassReloadingSpec.name)
       ClassReloadingSpec.check.should == :another_value
     end
-  
-    it "should unload old classes before reloading" do
-      autoload_dir "#{@dir}/unload_old_class"
-      UnloadOldClass.instance_variable_set "@value", :value
-      ClassLoader.reload_class(UnloadOldClass.name)
-      UnloadOldClass.instance_variable_get("@value").should == nil
-    end
+
+    # Outdated  
+    # it "should unload old classes before reloading" do
+    #   autoload_dir "#{@dir}/unload_old_class"
+    #   UnloadOldClass.instance_variable_set "@value", :value
+    #   ClassLoader.reload_class(UnloadOldClass.name)
+    #   UnloadOldClass.instance_variable_get("@value").should == nil
+    # end
   end
   
   it "should be able to preload all classes in production" do
