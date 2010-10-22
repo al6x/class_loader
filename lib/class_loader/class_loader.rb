@@ -38,7 +38,6 @@ module ClassLoader
                   raise_without_self NameError, "Class '#{class_name}' is not defined in the '#{target_namespace}' Namespace!"
                 else
                   warn "Warn: Class '#{class_name}' is not defined in the '#{target_namespace}' Namespace!"
-                  puts caller
                 end
               end
             end

@@ -38,7 +38,7 @@ There's currently a known bug in Ruby 1.8.x - class loading isn't thread safe, s
 
 ## Installation
 
-	$ gem install class-loader
+	$ gem install class_loader
 	
 ## Please let me know about bugs and your proposals, there's the 'Issues' tab at the top, feel free to submit.
 	
