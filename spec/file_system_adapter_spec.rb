@@ -2,9 +2,7 @@ require "rspec_ext"
 require "class_loader"
 
 describe ClassLoader::FileSystemAdapter do  
-  before :all do
-    @dir = prepare_spec_data __FILE__
-  end
+  with_tmp_spec_dir
   
   before :each do
     @fs_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)    
@@ -13,15 +11,11 @@ describe ClassLoader::FileSystemAdapter do
     @adapter = ClassLoader::ChainedAdapter.new
     @adapter.adapters << @fs_adapter
     
-    @adapter.add_path "#{@dir}/common"    
-  end
-  
-  after :all do
-    clean_spec_data __FILE__
+    @adapter.add_path "#{spec_dir}/common"    
   end
   
   def write_file path, klass
-    File.open("#{@dir}/#{path}", 'w'){|f| f.write "class #{klass}; end"}
+    File.open("#{spec_dir}/#{path}", 'w'){|f| f.write "class #{klass}; end"}
   end
   
   it "exist?" do
@@ -31,8 +25,8 @@ describe ClassLoader::FileSystemAdapter do
   end
   
   it "should works with multiple class paths" do
-    @adapter.add_path "#{@dir}/multiple_class_paths/path_a"
-    @adapter.add_path "#{@dir}/multiple_class_paths/path_b"
+    @adapter.add_path "#{spec_dir}/multiple_class_paths/path_a"
+    @adapter.add_path "#{spec_dir}/multiple_class_paths/path_b"
       
     @adapter.exist?("ClassInPathA").should be_true
     @adapter.exist?("ClassInPathB").should be_true
@@ -48,15 +42,15 @@ describe ClassLoader::FileSystemAdapter do
   end
   
   it "to_class_name" do
-    @adapter.to_class_name("#{@dir}/non_existing_path").should be_nil
-    @adapter.to_class_name("#{@dir}/common/SomeNamespace").should == "SomeNamespace"
-    @adapter.to_class_name("#{@dir}/common/SomeNamespace/SomeClass").should == "SomeNamespace::SomeClass"
+    @adapter.to_class_name("#{spec_dir}/non_existing_path").should be_nil
+    @adapter.to_class_name("#{spec_dir}/common/SomeNamespace").should == "SomeNamespace"
+    @adapter.to_class_name("#{spec_dir}/common/SomeNamespace/SomeClass").should == "SomeNamespace::SomeClass"
   end
   
   it "shouldn't allow to add path twice" do
     @adapter.clear
-    @adapter.add_path "#{@dir}/common"
-    lambda{@adapter.add_path "#{@dir}/common"}.should raise_error(/already added/)
+    @adapter.add_path "#{spec_dir}/common"
+    lambda{@adapter.add_path "#{spec_dir}/common"}.should raise_error(/already added/)
   end
   
   describe "file watching" do      
@@ -67,7 +61,7 @@ describe ClassLoader::FileSystemAdapter do
     end
     
     it "each_changed_class shouldn't affect paths not specified for watching" do
-      @adapter.add_path "#{@dir}/search_only_watched", false
+      @adapter.add_path "#{spec_dir}/search_only_watched", false
       changed_classes.should == []        
       
       sleep(1) && write_file("watching/SomeClass.rb", "SomeClass")
@@ -75,7 +69,7 @@ describe ClassLoader::FileSystemAdapter do
     end
       
     it "each_changed_class" do
-      @adapter.add_path "#{@dir}/watching", true
+      @adapter.add_path "#{spec_dir}/watching", true
       
       changed_classes.should == []        
     
@@ -90,12 +84,12 @@ describe ClassLoader::FileSystemAdapter do
   describe "Underscored shouldn't mess with CamelCase" do
     before :each do
       @camel_case_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)      
-      @camel_case_adapter.add_path "#{@dir}/shouldnt_mess", true
-      @camel_case_file_path = "#{@dir}/shouldnt_mess/CamelCaseClass.rb"
+      @camel_case_adapter.add_path "#{spec_dir}/shouldnt_mess", true
+      @camel_case_file_path = "#{spec_dir}/shouldnt_mess/CamelCaseClass.rb"
       
       @underscored_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::UnderscoredTranslator)  
-      @underscored_adapter.add_path "#{@dir}/shouldnt_mess", true
-      @underscored_file_path = "#{@dir}/shouldnt_mess/underscored_class.rb"
+      @underscored_adapter.add_path "#{spec_dir}/shouldnt_mess", true
+      @underscored_file_path = "#{spec_dir}/shouldnt_mess/underscored_class.rb"
     end
     
     

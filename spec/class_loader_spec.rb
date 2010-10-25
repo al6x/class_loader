@@ -2,13 +2,9 @@ require 'rspec_ext'
 require "class_loader"
 
 describe ClassLoader do  
-  before :all do
-    @dir = prepare_spec_data __FILE__
-  end
+  with_tmp_spec_dir
   
   after :all do
-    clean_spec_data __FILE__
-
     remove_constants %w(
       BasicSpec
       OnlyOnceSpec
@@ -28,14 +24,14 @@ describe ClassLoader do
   end
   
   it "should load classes from class path" do
-    autoload_dir "#{@dir}/basic"
+    autoload_dir "#{spec_dir}/basic"
     
     BasicSpec
     BasicSpec::SomeNamespace::SomeClass
   end
     
   it "should load classes only once" do
-    autoload_dir "#{@dir}/only_once"
+    autoload_dir "#{spec_dir}/only_once"
     
     check = mock
     check.should_receive(:loaded).once
@@ -49,7 +45,7 @@ describe ClassLoader do
   end
   
   it "should resolve is namespace a class or module" do
-    autoload_dir "#{@dir}/namespace_type_resolving"
+    autoload_dir "#{spec_dir}/namespace_type_resolving"
     
     NamespaceTypeResolving.class.should == Class
     NamespaceTypeResolving::SomeClass
@@ -59,13 +55,13 @@ describe ClassLoader do
   end
   
   it "should recognize infinity loop" do
-    autoload_dir "#{@dir}/infinity_loop"
+    autoload_dir "#{spec_dir}/infinity_loop"
     
     lambda{InfinityLoop}.should raise_error(/Class Name .+ doesn't correspond to File Name/)
   end
   
   it "should correctly works inside of anonymous class" do
-    autoload_dir "#{@dir}/anonymous_class"
+    autoload_dir "#{spec_dir}/anonymous_class"
     
     module ::AnonymousSpec
       class << self
@@ -79,7 +75,7 @@ describe ClassLoader do
   end
   
   it "should raise exception if class defined in another namespace" do
-    autoload_dir "#{@dir}/another_namespace"
+    autoload_dir "#{spec_dir}/another_namespace"
     
     AnotherNamespace::NamespaceA
     ClassLoader.error_on_defined_constant = true
@@ -90,9 +86,9 @@ describe ClassLoader do
   
   describe "reloading" do  
     it "should reload class files" do
-      spec_dir = "#{@dir}/class_reloading"
-      fname = "#{spec_dir}/ClassReloadingSpec.rb"
-      autoload_dir spec_dir
+      class_reloading_dir = "#{spec_dir}/class_reloading"
+      fname = "#{class_reloading_dir}/ClassReloadingSpec.rb"
+      autoload_dir class_reloading_dir
 
       code = <<-RUBY
 class ClassReloadingSpec
@@ -118,7 +114,7 @@ RUBY
 
     # Outdated  
     # it "should unload old classes before reloading" do
-    #   autoload_dir "#{@dir}/unload_old_class"
+    #   autoload_dir "#{spec_dir}/unload_old_class"
     #   UnloadOldClass.instance_variable_set "@value", :value
     #   ClassLoader.reload_class(UnloadOldClass.name)
     #   UnloadOldClass.instance_variable_get("@value").should == nil
@@ -126,14 +122,14 @@ RUBY
   end
   
   it "should be able to preload all classes in production" do
-    autoload_dir "#{@dir}/preloading"
+    autoload_dir "#{spec_dir}/preloading"
     Object.const_defined?(:PreloadingSpec).should be_false    
     ClassLoader.preload!
     Object.const_defined?(:PreloadingSpec).should be_true
   end  
   
   it "underscored smoke test" do
-    autoload_dir "#{@dir}/underscored"
+    autoload_dir "#{spec_dir}/underscored"
     
     UnderscoredNamespace::UnderscoredClass
   end
