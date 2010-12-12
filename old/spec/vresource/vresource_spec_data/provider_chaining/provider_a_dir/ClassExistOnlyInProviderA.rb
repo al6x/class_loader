@@ -1,3 +1,0 @@
-class ClassExistOnlyInProviderA
-#  ClassExistOnlyInProviderA
-end

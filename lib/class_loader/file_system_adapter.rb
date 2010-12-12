@@ -70,10 +70,11 @@ module ClassLoader
     
     def add_path base_path, watch = false      
       base_path = File.expand_path(base_path)
-      raise "#{base_path} already added!" if paths.include? base_path
-      
-      paths << base_path
-      watched_paths << base_path if watch
+      # raise "#{base_path} already added!" if paths.include? base_path
+      unless paths.include? base_path
+        paths << base_path
+        watched_paths << base_path if watch
+      end
     end
     
     def clear

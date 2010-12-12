@@ -1,3 +1,0 @@
-class ChainTest
-# "ProviderA"
-end
