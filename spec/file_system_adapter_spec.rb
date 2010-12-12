@@ -47,10 +47,11 @@ describe ClassLoader::FileSystemAdapter do
     @adapter.to_class_name("#{spec_dir}/common/SomeNamespace/SomeClass").should == "SomeNamespace::SomeClass"
   end
   
-  it "shouldn't allow to add path twice" do
+  it "shouldn't add path twice" do
     @adapter.clear
     @adapter.add_path "#{spec_dir}/common"
-    lambda{@adapter.add_path "#{spec_dir}/common"}.should raise_error(/already added/)
+    @adapter.add_path "#{spec_dir}/common"
+    @fs_adapter.instance_variable_get("@paths").size.should == 1
   end
   
   describe "file watching" do      
