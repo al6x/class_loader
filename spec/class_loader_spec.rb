@@ -16,7 +16,7 @@ describe ClassLoader do
       UnloadOldClass
       PreloadingSpec
       UnderscoredNamespace
-    )        
+    )
   end
   
   after :each do
@@ -78,10 +78,11 @@ describe ClassLoader do
     autoload_dir "#{spec_dir}/another_namespace"
     
     AnotherNamespace::NamespaceA
-    ClassLoader.error_on_defined_constant = true
+    # ClassLoader.error_on_defined_constant = true
     lambda{
       AnotherNamespace::NamespaceB
-    }.should raise_error(/Class '.+' is not defined in the '.+' Namespace!/)
+    }.should raise_error(/something wrong with/)
+    # }.should raise_error(/Class '.+' is not defined in the '.+' Namespace!/)
   end
   
   describe "reloading" do  

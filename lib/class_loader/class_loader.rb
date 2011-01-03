@@ -5,14 +5,11 @@ module ClassLoader
   SYNC = Monitor.new
   
   class << self        
-    # 
-    # Class loading logic
-    # 
-    attr_accessor :error_on_defined_constant
     def loaded_classes; @loaded_classes ||= {} end            
     
-    def load_class namespace, const, reload = false
+    def load_class namespace, const, reload = false      
       SYNC.synchronize do
+        original_namespace = namespace
         namespace = nil if namespace == Object or namespace == Module
         target_namespace = namespace
       
@@ -24,7 +21,13 @@ module ClassLoader
         begin
           simple_also_tried = (namespace == nil)
         
-          if try_load(class_name, const)
+          if adapter.exist? class_name            
+            if loaded_classes.include?(class_name) and !reload
+              raise_without_self NameError, "something wrong with '#{const}' referenced from '#{original_namespace}' scope!"
+            end
+            
+            load(class_name, const)
+            
             defined_in_home_scope = namespace ? namespace.const_defined?(const) : Object.const_defined?(const)            
           
             unless defined_in_home_scope
@@ -32,16 +35,6 @@ module ClassLoader
               raise_without_self NameError, msg
             end
                         
-            unless reload
-              if loaded_classes.include? class_name
-                if error_on_defined_constant  
-                  raise_without_self NameError, "Class '#{class_name}' is not defined in the '#{target_namespace}' Namespace!"
-                else
-                  warn "Warn: Class '#{class_name}' is not defined in the '#{target_namespace}' Namespace!"
-                end
-              end
-            end
-            
             result = namespace ? namespace.const_get(const) : Object.const_get(const)
           
             loaded_classes[class_name] = target_namespace
@@ -99,7 +92,7 @@ module ClassLoader
     def clear
       self.adapter = nil
       self.observers = []
-      self.error_on_defined_constant = false
+      # self.error_on_defined_constant = false
     end
     
     attr_accessor :observers    
@@ -166,20 +159,15 @@ module ClassLoader
         adapter        
       end
       
-      def try_load class_name, const
-        if adapter.exist? class_name
-          script = adapter.read class_name
-          script = wrap_inside_namespace Module.namespace_for(class_name), script          
-          file_path = adapter.to_file_path(class_name)          
-          eval script, TOPLEVEL_BINDING, file_path
-        else
-          return false
-        end
-        return true
+      def load class_name, const        
+        script = adapter.read class_name
+        script = wrap_inside_namespace Module.namespace_for(class_name), script          
+        file_path = adapter.to_file_path(class_name)          
+        eval script, TOPLEVEL_BINDING, file_path
       end
       
       def raise_without_self exception, message
-        raise exception, message, caller.select{|path| path !~ /\/lib\/class_loader\//}
+        raise exception, message, caller.select{|path| path !~ /\/lib\/class_loader\// and path !~ /monitor\.rb/}
       end
     
       def name_hack namespace
