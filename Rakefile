@@ -1,10 +1,10 @@
 require 'rake_ext'
 
 project(
-  :name => "class_loader",
-  :version => "0.3.10",
-  :summary => "Automatically finds and loads classes",
+  name: "class_loader",
+  version: "0.3.10",
+  summary: "Automatically finds and loads classes",
 
-  :author => "Alexey Petrushin",
-  :homepage => "http://github.com/alexeypetrushin/class_loader"
+  author: "Alexey Petrushin",
+  homepage: "http://github.com/alexeypetrushin/class_loader"
 )
