@@ -57,7 +57,7 @@ describe ClassLoader do
   it "should recognize infinity loop" do
     autoload_dir "#{spec_dir}/infinity_loop"
     
-    lambda{InfinityLoop}.should raise_error(/Class Name .+ doesn't correspond to File Name/)
+    -> {InfinityLoop}.should raise_error(/Class Name .+ doesn't correspond to File Name/)
   end
   
   it "should correctly works inside of anonymous class" do
@@ -79,7 +79,7 @@ describe ClassLoader do
     
     AnotherNamespace::NamespaceA
     # ClassLoader.error_on_defined_constant = true
-    lambda{
+    -> {
       AnotherNamespace::NamespaceB
     }.should raise_error(/something wrong with/)
     # }.should raise_error(/Class '.+' is not defined in the '.+' Namespace!/)
