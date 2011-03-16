@@ -42,4 +42,4 @@ There's currently a known bug in Ruby 1.8.x - class loading isn't thread safe, s
 	
 ## Please let me know about bugs and your proposals, there's the 'Issues' tab at the top, feel free to submit.
 	
-Copyright (c) 2010 Alexey Petrushin http://bos-tec.com, released under the MIT license.
+Copyright (c) 2011 Alexey Petrushin http://4ire.net, released under the MIT license.

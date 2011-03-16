@@ -4,7 +4,7 @@ require "class_loader"
 describe ClassLoader::FileSystemAdapter do  
   with_tmp_spec_dir
   
-  before :each do
+  before do
     @fs_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)    
     
     # Actually we are testing both ChainedAdapter and FileSystemAdapter
@@ -83,7 +83,7 @@ describe ClassLoader::FileSystemAdapter do
   end
   
   describe "Underscored shouldn't mess with CamelCase" do
-    before :each do
+    before do
       @camel_case_adapter = ClassLoader::FileSystemAdapter.new(ClassLoader::CamelCaseTranslator)      
       @camel_case_adapter.add_path "#{spec_dir}/shouldnt_mess", true
       @camel_case_file_path = "#{spec_dir}/shouldnt_mess/CamelCaseClass.rb"

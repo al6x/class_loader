@@ -7,15 +7,16 @@ module ClassLoader
   class << self        
     def loaded_classes; @loaded_classes ||= {} end            
     
-    def load_class namespace, const, reload = false      
+    def load_class namespace, const, reload = false  
       SYNC.synchronize do
         original_namespace = namespace
         namespace = nil if namespace == Object or namespace == Module
         target_namespace = namespace
       
         # Name hack (for anonymous classes)
+
         namespace = eval "#{name_hack(namespace)}" if namespace
-      
+
         class_name = namespace ? "#{namespace.name}::#{const}" : const
         simple_also_tried = false
         begin
@@ -46,7 +47,7 @@ module ClassLoader
           end
         end until simple_also_tried
         
-        raise_without_self NameError, "uninitialized constant '#{class_name}'!"
+        return false
       end
     end
     
@@ -105,10 +106,15 @@ module ClassLoader
       return if @hooked
 
       ::Module.class_eval do
-        alias_method :const_missing_without_cl, :const_missing
+        alias_method :const_missing_without_class_loader, :const_missing
+        protected :const_missing_without_class_loader
         def const_missing const
-          return ClassLoader.load_class self, const.to_s
-        end
+         if klass = ClassLoader.load_class(self, const.to_s)
+            klass
+          else
+            const_missing_without_class_loader const
+          end
+        end        
       end
       @hooked = true
     end
@@ -159,7 +165,7 @@ module ClassLoader
         adapter        
       end
       
-      def load class_name, const        
+      def load class_name, const   
         script = adapter.read class_name
         script = wrap_inside_namespace Module.namespace_for(class_name), script          
         file_path = adapter.to_file_path(class_name)          
@@ -170,9 +176,10 @@ module ClassLoader
         raise exception, message, caller.select{|path| path !~ /\/lib\/class_loader\// and path !~ /monitor\.rb/}
       end
     
-      def name_hack namespace
+      def name_hack namespace        
         if namespace
-          namespace.to_s.gsub("#<Class:", "").gsub(">", "")
+          result = namespace.to_s.gsub("#<Class:", "").gsub(">", "")
+          result =~ /^\d/ ? "" : result
         else
           ""
         end

@@ -19,7 +19,7 @@ describe ClassLoader do
     )
   end
   
-  after :each do
+  after do
     ClassLoader.clear
   end
   
