@@ -33,7 +33,8 @@ module ClassLoader
           
             unless defined_in_home_scope
               msg = "Class Name '#{class_name}' doesn't correspond to File Name '#{adapter.to_file_path(class_name)}'!"
-              raise_without_self NameError, msg
+              raise msg
+              # raise_without_self NameError, msg
             end
                         
             result = namespace ? namespace.const_get(const) : Object.const_get(const)
