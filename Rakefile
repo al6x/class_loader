@@ -2,7 +2,7 @@ require 'rake_ext'
 
 project(
   name: "class_loader",
-  version: "0.4",
+  version: "0.4.1",
   summary: "Automatically finds, loads and reloads Classes",
 
   author: "Alexey Petrushin",

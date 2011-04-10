@@ -1,3 +1,5 @@
+raise 'ruby 1.9.2 or higher required!' if RUBY_VERSION < '1.9.2'
+
 %w(
   support
   file_system_adapter/camel_case_translator
