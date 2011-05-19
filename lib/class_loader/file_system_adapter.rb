@@ -2,7 +2,7 @@ module ClassLoader
   class FileSystemAdapter
     attr_reader :translator
     
-    def initialize class_name_translator
+    def initialize class_name_translator      
       @translator = class_name_translator
       @paths, @watched_paths, @file_name_cache = [], [], {}
       @watched_files, @first_check = {}, true
@@ -47,8 +47,7 @@ module ClassLoader
           
           nil
         end
-        
-        @file_name_cache[class_name] = [file_path, true]
+        @file_name_cache[class_name] = [file_path, true]        
       end
       file_path
     end
@@ -83,10 +82,10 @@ module ClassLoader
     end    
         
     def each_changed_class &block
-      if @first_check
+      unless @first_check == @watched_paths
+        @first_check = @watched_paths.clone
         each_watched_file{|file_path, file_name| remember_file file_path}
-        @first_check = false
-      else
+      else        
         each_watched_file do |file_path, file_name|
           if file_changed? file_path
             remember_file file_path
@@ -94,7 +93,7 @@ module ClassLoader
             normalized_name = file_name.sub(/\.rb$/, "")
             block.call translator.to_class_name(normalized_name)
           end
-        end
+        end 
       end      
     end
     
@@ -121,6 +120,10 @@ module ClassLoader
         end
       end
     end
+    
+    def inspect
+      "FileSystemAdapter (#{@paths.join(', ')})"
+    end      
     
     protected
       attr_reader :paths, :watched_paths, :watcher, :watched_files      

@@ -161,8 +161,8 @@ module ClassLoader
     protected
       def default_adapter
         adapter = ChainedAdapter.new        
-        adapter.adapters << FileSystemAdapter.new(CamelCaseTranslator)    
         adapter.adapters << FileSystemAdapter.new(UnderscoredTranslator)
+        adapter.adapters << FileSystemAdapter.new(CamelCaseTranslator)      
         adapter        
       end
       

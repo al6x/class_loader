@@ -23,7 +23,7 @@ module ClassLoader
       end
     end
     
-    def each_changed_class &block
+    def each_changed_class &block      
       adapters.each{|a| a.each_changed_class &block}
     end
     
