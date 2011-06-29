@@ -2,7 +2,7 @@ class ClassLoader::ChainedAdapter
   attr_accessor :adapters
 
   def initialize
-    @adapters = []
+    @adapters, @paths = [], []
   end
   
   %w(
@@ -38,5 +38,9 @@ class ClassLoader::ChainedAdapter
     adapters.each do |a|
       a.add_path *args if a.respond_to? :add_path
     end
+  end
+  
+  def paths
+    adapters.first.paths
   end
 end

@@ -1,13 +1,15 @@
 require 'monitor'
 
+warn 'ClassLoader: working in slow, debug mode with explicit tmp file generation!' if CLASS_LOADER_NO_EVAL
+
 module ClassLoader
   @observers = []
   SYNC = Monitor.new
   
   class << self        
-    def loaded_classes; @loaded_classes ||= {} end            
+    def loaded_classes; @loaded_classes ||= {} end       
     
-    def load_class namespace, const, reload = false  
+    def load_class namespace, const, reload = false
       SYNC.synchronize do
         original_namespace = namespace
         namespace = nil if namespace == Object or namespace == Module
@@ -53,16 +55,19 @@ module ClassLoader
     end
     
     def reload_class class_name
-      SYNC.synchronize do
-        class_name = class_name.sub(/^::/, "")
-        namespace = Module.namespace_for(class_name)
-        name = class_name.sub(/^#{namespace}::/, "")      
+      # reloading doesn works in debug mode, because we by ourself are generating tmp source files
+      unless CLASS_LOADER_NO_EVAL
+        SYNC.synchronize do
+          class_name = class_name.sub(/^::/, "")
+          namespace = Module.namespace_for(class_name)
+          name = class_name.sub(/^#{namespace}::/, "")      
         
-        # removing old class
-        # class_container = (namespace || Object)
-        # class_container.send :remove_const, name if class_container.const_defined? name
+          # removing old class
+          # class_container = (namespace || Object)
+          # class_container.send :remove_const, name if class_container.const_defined? name
         
-        return load_class namespace, name, true
+          return load_class namespace, name, true
+        end
       end
     end
       
@@ -169,8 +174,27 @@ module ClassLoader
       def load class_name, const   
         script = adapter.read class_name
         script = wrap_inside_namespace Module.namespace_for(class_name), script          
-        file_path = adapter.to_file_path(class_name)          
-        eval script, TOPLEVEL_BINDING, file_path
+        file_path = adapter.to_file_path(class_name)
+
+        # sometimes we need to generate file explicitly
+        # for example evaluated code will not be shown in Ruby coverage tool
+        unless defined?(CLASS_LOADER_NO_EVAL)
+          eval script, TOPLEVEL_BINDING, file_path
+        else          
+          if file_path =~ /\.rb$/
+            absolute_tmp_file_path = file_path.sub /\.rb$/, '.cl_tmp.rb'
+            begin
+              File.open absolute_tmp_file_path, "w" do |f|
+                f.write(script)
+              end
+              ::Kernel.load absolute_tmp_file_path
+            ensure
+              File.delete absolute_tmp_file_path if defined?(CLASS_LOADER_CLEAN) and File.exist?(absolute_tmp_file_path)
+            end
+          else
+            eval script, TOPLEVEL_BINDING, file_path
+          end
+        end
       end
       
       def raise_without_self exception, message
