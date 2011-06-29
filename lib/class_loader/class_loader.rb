@@ -1,6 +1,6 @@
 require 'monitor'
 
-warn 'ClassLoader: working in slow, debug mode with explicit tmp file generation!' if CLASS_LOADER_NO_EVAL
+warn 'ClassLoader: working in slow, debug mode with explicit tmp file generation!' if CLASS_LOADER_GENERATE_TMP_FILES
 
 module ClassLoader
   @observers = []
@@ -54,20 +54,17 @@ module ClassLoader
       end
     end
     
-    def reload_class class_name
-      # reloading doesn works in debug mode, because we by ourself are generating tmp source files
-      unless CLASS_LOADER_NO_EVAL
-        SYNC.synchronize do
-          class_name = class_name.sub(/^::/, "")
-          namespace = Module.namespace_for(class_name)
-          name = class_name.sub(/^#{namespace}::/, "")      
-        
-          # removing old class
-          # class_container = (namespace || Object)
-          # class_container.send :remove_const, name if class_container.const_defined? name
-        
-          return load_class namespace, name, true
-        end
+    def reload_class class_name      
+      SYNC.synchronize do
+        class_name = class_name.sub(/^::/, "")
+        namespace = Module.namespace_for(class_name)
+        name = class_name.sub(/^#{namespace}::/, "")      
+      
+        # removing old class
+        # class_container = (namespace || Object)
+        # class_container.send :remove_const, name if class_container.const_defined? name
+      
+        return load_class namespace, name, true
       end
     end
       
@@ -136,6 +133,9 @@ module ClassLoader
     # 
     attr_accessor :watch_interval
     def start_watching!
+      # reloading doesn works in debug mode, because we by ourself are generating tmp source files
+      return if CLASS_LOADER_GENERATE_TMP_FILES
+        
       unless @watching_thread      
         @watching_thread = Thread.new do        
           while true
@@ -178,18 +178,16 @@ module ClassLoader
 
         # sometimes we need to generate file explicitly
         # for example evaluated code will not be shown in Ruby coverage tool
-        unless defined?(CLASS_LOADER_NO_EVAL)
+        unless defined?(CLASS_LOADER_GENERATE_TMP_FILES)
           eval script, TOPLEVEL_BINDING, file_path
         else          
           if file_path =~ /\.rb$/
-            absolute_tmp_file_path = file_path.sub /\.rb$/, '.cl_tmp.rb'
+            tmp_file_path = file_path.sub /\.rb$/, '.cltmp.rb'
             begin
-              File.open absolute_tmp_file_path, "w" do |f|
-                f.write(script)
-              end
-              ::Kernel.load absolute_tmp_file_path
+              File.open(tmp_file_path, "w"){|f| f.write(script)}
+              Kernel.load tmp_file_path
             ensure
-              File.delete absolute_tmp_file_path if defined?(CLASS_LOADER_CLEAN) and File.exist?(absolute_tmp_file_path)
+              File.delete tmp_file_path if defined?(CLASS_LOADER_CLEAN) and ::File.exist?(tmp_file_path)
             end
           else
             eval script, TOPLEVEL_BINDING, file_path

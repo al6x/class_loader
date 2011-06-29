@@ -1,5 +1,5 @@
 class ClassLoader::FileSystemAdapter
-  attr_reader :translator, :paths
+  attr_reader :translator
   
   def initialize class_name_translator      
     @translator = class_name_translator
@@ -125,7 +125,7 @@ class ClassLoader::FileSystemAdapter
   end      
   
   protected
-    attr_reader :watched_paths, :watcher, :watched_files      
+    attr_reader :paths, :watched_paths, :watcher, :watched_files      
     
     def file_changed? file_path
       old_time = watched_files[file_path]
