@@ -1,6 +1,6 @@
 require 'monitor'
 
-warn 'ClassLoader: working in slow, debug mode with explicit tmp file generation!' if CLASS_LOADER_GENERATE_TMP_FILES
+warn 'ClassLoader: working in slow, debug mode with explicit tmp file generation!' if defined?(CLASS_LOADER_GENERATE_TMP_FILES)
 
 module ClassLoader
   @observers = []
@@ -134,7 +134,7 @@ module ClassLoader
     attr_accessor :watch_interval
     def start_watching!
       # reloading doesn works in debug mode, because we by ourself are generating tmp source files
-      return if CLASS_LOADER_GENERATE_TMP_FILES
+      return if defined?(CLASS_LOADER_GENERATE_TMP_FILES)
         
       unless @watching_thread      
         @watching_thread = Thread.new do        
