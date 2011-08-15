@@ -5,7 +5,7 @@ rspec do
     before(:all){paths.each{|path| ClassLoader.autoload_path path}}
     after(:all){paths.each{|path| ClassLoader.delete_path path}}
   end
-  
+
   def with_autoload_path *paths, &b
     begin
       paths.each{|path| ClassLoader.autoload_path path}

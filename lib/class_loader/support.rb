@@ -10,7 +10,7 @@ class String
       word
     end
   end
-  
+
   unless method_defined? :camelize
     def camelize first_letter_in_uppercase = true
       if first_letter_in_uppercase

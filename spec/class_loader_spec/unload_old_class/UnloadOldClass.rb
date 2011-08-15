@@ -1,2 +1,2 @@
-class UnloadOldClass  
+class UnloadOldClass
 end

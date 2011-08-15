@@ -4,7 +4,7 @@ class ClassLoader::ChainedAdapter
   def initialize
     @adapters = []
   end
-  
+
   %w(
     exist?
     read
@@ -21,25 +21,25 @@ class ClassLoader::ChainedAdapter
       end
     end
   end
-  
-  def each_changed_class &block      
+
+  def each_changed_class &block
     adapters.each{|a| a.each_changed_class &block}
   end
-  
+
   def each_class &block
     adapters.each{|a| a.each_class &block}
   end
-  
+
   def clear
     adapters.each{|a| a.clear}
   end
-  
+
   def add_path *args
     adapters.each do |a|
       a.add_path *args if a.respond_to? :add_path
     end
   end
-  
+
   def delete_path *args
     adapters.each do |a|
       a.add_path *args if a.respond_to? :delete_path

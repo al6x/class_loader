@@ -6,7 +6,7 @@ There's only one method - :autoload_path, kind of turbocharged :autoload, it und
 Let's say Your application has the following structure
 
 	/your_app
-		/lib			
+		/lib
 			/animals
 				/dog.rb
 			/zoo.rb
@@ -15,19 +15,19 @@ Just point ClassLoader to the directory(ies) Your classes are located and it wil
 
 	require 'class_loader'
 	autoload_path '/your_app/lib'
-	
+
 	Zoo.add Animals::Dog.new # <= all classes loaded automatically
-	
+
 no need for
 
 	# require 'animals/dog'
 	# require 'app'
-	
+
 you can specify multiple autoload directories, and tell it to watch them
 
 	autoload_path '/your_app/lib', true # <= provide true as the second argument
-	autoload_path '/your_app/another_lib'	
-	
+	autoload_path '/your_app/another_lib'
+
 **Note**: In the dog.rb we write just the "class Dog; end", instead of "module Animals; class Dog; end; end', and there are no really the 'Animals' module, ClassLoader smart enough to figure it out that there's should be one by looking at files structure and it will generate it on the fly.
 
 Also you can use CamelCase notation or provide Your own class_name/file_path translator, or even provide Your own custom resource adapter that for example will look for classes on the net and download them.
@@ -39,7 +39,7 @@ There's currently a known bug in Ruby 1.8.x - class loading isn't thread safe, s
 ## Installation
 
 	$ gem install class_loader
-	
+
 ## License
-	
+
 Copyright (c) Alexey Petrushin http://petrush.in, released under the MIT license.
