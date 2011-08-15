@@ -39,4 +39,10 @@ class ClassLoader::ChainedAdapter
       a.add_path *args if a.respond_to? :add_path
     end
   end
+  
+  def delete_path *args
+    adapters.each do |a|
+      a.add_path *args if a.respond_to? :delete_path
+    end
+  end
 end

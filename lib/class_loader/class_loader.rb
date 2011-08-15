@@ -87,10 +87,17 @@ module ClassLoader
     # 
     # Utilities
     #     
-    def autoload_dir path, watch = false, start_watch_thread = true
+    def autoload_path path, watch = false, start_watch_thread = true
       hook!
       start_watching! if watch and start_watch_thread
       adapter.add_path path, watch
+    end
+    def autoload_dir *a, &b
+      warn 'ClassLoader: the :autoload_dir method is deprecated, please use :autoload_path'
+      autoload_path *a, &b
+    end
+    def delete_path path
+      adapter.delete_path path
     end
     
     def clear

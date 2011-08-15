@@ -12,6 +12,10 @@ end
   class_loader
 ).each{|f| require "class_loader/#{f}"}
 
-def autoload_dir *args, &block
-  ClassLoader.autoload_dir *args, &block
-end 
+def autoload_path *args, &block
+  ClassLoader.autoload_path *args, &block
+end
+def autoload_dir *a, &b
+  warn 'ClassLoader: the :autoload_dir method is deprecated, please use :autoload_path'
+  autoload_path *a, &b
+end

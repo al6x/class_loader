@@ -75,6 +75,12 @@ class ClassLoader::FileSystemAdapter
     end
   end
   
+  def delete_path path
+    path = File.expand_path(path)
+    paths.delete path
+    watched_paths.delete path
+  end
+  
   def clear
     @paths, @watched_paths, @file_name_cache = [], [], {}
     @watched_files, @first_check = {}, true

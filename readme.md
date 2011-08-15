@@ -1,7 +1,7 @@
 # Automatically finds and loads classes for Your Ruby App
 
 ## Overview
-There's only one method - :autoload_dir, kind of turbocharged :autoload, it understands namespaces, figure out dependencies and can watch and reload changed files.
+There's only one method - :autoload_path, kind of turbocharged :autoload, it understands namespaces, figure out dependencies and can watch and reload changed files.
 
 Let's say Your application has the following structure
 
@@ -14,7 +14,7 @@ Let's say Your application has the following structure
 Just point ClassLoader to the directory(ies) Your classes are located and it will find and load them automatically
 
 	require 'class_loader'
-	autoload_dir '/your_app/lib'
+	autoload_path '/your_app/lib'
 	
 	Zoo.add Animals::Dog.new # <= all classes loaded automatically
 	
@@ -25,8 +25,8 @@ no need for
 	
 you can specify multiple autoload directories, and tell it to watch them
 
-	autoload_dir '/your_app/lib', true # <= provide true as the second argument
-	autoload_dir '/your_app/another_lib'	
+	autoload_path '/your_app/lib', true # <= provide true as the second argument
+	autoload_path '/your_app/another_lib'	
 	
 **Note**: In the dog.rb we write just the "class Dog; end", instead of "module Animals; class Dog; end; end', and there are no really the 'Animals' module, ClassLoader smart enough to figure it out that there's should be one by looking at files structure and it will generate it on the fly.
 
