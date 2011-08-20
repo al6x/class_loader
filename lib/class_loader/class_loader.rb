@@ -93,7 +93,7 @@ module ClassLoader
       adapter.add_path path, watch
     end
     def autoload_dir *a, &b
-      warn 'ClassLoader: the :autoload_dir method is deprecated, please use :autoload_path'
+      warn 'ClassLoader: the :autoload_path method is deprecated, please use :autoload_path'
       autoload_path *a, &b
     end
     def delete_path path
