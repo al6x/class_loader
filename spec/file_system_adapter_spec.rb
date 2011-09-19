@@ -94,7 +94,7 @@ describe ClassLoader::FileSystemAdapter do
     end
 
 
-    it "should watch only files understable by it's translator (CamelCase shouldn't load Underscored)" do
+    it "should watch only files understable by its translator (CamelCase shouldn't load Underscored)" do
       watched = []
       @camel_case_adapter.each_watched_file{|file_path, relative_name| watched << relative_name}
       watched.should == ["CamelCaseClass.rb"]
