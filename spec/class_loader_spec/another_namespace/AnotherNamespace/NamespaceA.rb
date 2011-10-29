@@ -1,2 +1,0 @@
-class NamespaceA
-end

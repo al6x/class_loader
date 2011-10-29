@@ -1,2 +1,0 @@
-class NamespaceTypeResolving
-end

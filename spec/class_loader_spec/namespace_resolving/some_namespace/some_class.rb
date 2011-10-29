@@ -1,0 +1,2 @@
+class SomeNamespace::SomeClass
+end

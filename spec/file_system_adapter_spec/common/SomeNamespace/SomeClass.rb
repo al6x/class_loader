@@ -1,1 +1,0 @@
-class SomeClass; end

@@ -1,2 +1,0 @@
-class OnlyOnceSpec
-end

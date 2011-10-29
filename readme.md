@@ -1,40 +1,39 @@
-# Automatically finds and loads classes for Your Ruby App
+# Automatically find, load and reload classes
 
-## Overview
-There's only one method - :autoload_path, kind of turbocharged :autoload, it understands namespaces, figure out dependencies and can watch and reload changed files.
+Suppose there's following directory structure:
 
-Let's say Your application has the following structure
+    /lib
+      /some_class.rb        # class SomeClass; end
+      /some_namespace
+        /another_class.rb   # class SomeNamespace:AnotherClass; end
+      /some_namespace.rb    # module SomeNamespace; end
 
-	/your_app
-		/lib
-			/animals
-				/dog.rb
-			/zoo.rb
+All these classes will be loaded automatically, on demand:
 
-Just point ClassLoader to the directory(ies) Your classes are located and it will find and load them automatically
+``` ruby
+require 'class_loader'
 
-	require 'class_loader'
-	autoload_path '/your_app/lib'
+SomeClass
+SomeNamespace::AnotherClass
+```
 
-	Zoo.add Animals::Dog.new # <= all classes loaded automatically
+No need for require:
 
-no need for
+``` ruby
+require 'some_class'
+require 'some_namespace'
+require 'some_namespace/another_class'
+```
 
-	# require 'animals/dog'
-	# require 'app'
+or autoload:
 
-you can specify multiple autoload directories, and tell it to watch them
-
-	autoload_path '/your_app/lib', true # <= provide true as the second argument
-	autoload_path '/your_app/another_lib'
-
-**Note**: In the dog.rb we write just the "class Dog; end", instead of "module Animals; class Dog; end; end', and there are no really the 'Animals' module, ClassLoader smart enough to figure it out that there's should be one by looking at files structure and it will generate it on the fly.
-
-Also you can use CamelCase notation or provide Your own class_name/file_path translator, or even provide Your own custom resource adapter that for example will look for classes on the net and download them.
-
-There's currently a known bug in Ruby 1.8.x - class loading isn't thread safe, so in production you should preload all Your classes
-
-	ClassLoader.preload! if app_in_production?
+``` ruby
+autoload :SomeClass,      'some_class'
+autoload :SomeNamespace,  'some_namespace'
+module SomeNamespace
+  autoload :AnotherClass, 'some_namespace/another_class'
+end
+```
 
 ## Installation
 
