@@ -94,6 +94,10 @@ module ClassLoader
       @watcher ||= ClassLoader::Watcher.new monitor
     end
 
+    def filter_backtrace backtrace
+      backtrace.reject{|path| path.include?("/lib/class_loader") or path.include?('monitor.rb')}
+    end
+
     protected
       # Use this method to define class name to file name mapping, by default it uses underscored paths,
       # but You can override this method to use camel case for example.
@@ -133,10 +137,6 @@ module ClassLoader
         else
           ""
         end
-      end
-
-      def filter_backtrace backtrace
-        backtrace.reject{|path| path.include?("/lib/class_loader") or path.include?('monitor.rb')}
       end
   end
 end
