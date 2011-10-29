@@ -35,7 +35,9 @@ module ClassLoader
           rescue LoadError => e
             # Not the best way - hardcoding error messages, but it's the fastest way
             # to check existence of file & load it.
-            raise e unless e.message =~ /no such file.*#{Regexp.escape(class_file_name)}/
+            unless e.message =~ /no such file.*#{Regexp.escape(class_file_name)}/
+              raise e.class, e.message, filter_backtrace(e.backtrace)
+            end
             false
           end
 
@@ -43,14 +45,14 @@ module ClassLoader
             # Checking that class hasn't been loaded previously, sometimes it may be caused by
             # weird class definition code.
             if loaded_classes.include? class_name
-              raise_without_self NameError, \
-                "something wrong with '#{const}' referenced from '#{original_namespace}' scope!"
+              msg = "something wrong with '#{const}' referenced from '#{original_namespace}' scope!"
+              raise NameError, msg, filter_backtrace(caller)
             end
 
             # Checking that class defined in correct namespace, not the another one.
             unless namespace ? namespace.const_defined?(const, false) : Object.const_defined?(const, false)
-              raise_without_self NameError, \
-                "class name '#{class_name}' doesn't correspond to file name '#{class_file_name}'!"
+              msg = "class name '#{class_name}' doesn't correspond to file name '#{class_file_name}'!"
+              raise NameError, msg, filter_backtrace(caller)
             end
 
             # Getting the class itself.
@@ -133,8 +135,8 @@ module ClassLoader
         end
       end
 
-      def raise_without_self exception, message
-        raise exception, message, caller.select{|path| path !~ /\/lib\/class_loader\//}
+      def filter_backtrace backtrace
+        backtrace.reject{|path| path.include?("/lib/class_loader") or path.include?('monitor.rb')}
       end
   end
 end
