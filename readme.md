@@ -1,4 +1,4 @@
-# ClassLoader automatically finds, loads and reloads classes
+# Automatically finds, loads and reloads classes
 
 Suppose there's following directory structure:
 
