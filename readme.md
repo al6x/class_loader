@@ -43,6 +43,8 @@ Or preload classes eagerly:
 ClassLoader.preload 'my_app/lib'
 ```
 
+It's also very small, sources are about 150 lines, (third of it are comments).
+
 ## Installation
 
 	$ gem install class_loader
