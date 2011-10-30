@@ -1,6 +1,6 @@
 require 'rake_ext'
 
-project(
+project \
   name: "class_loader",
   gem: true,
   summary: "Automatically finds, loads and reloads classes",
@@ -8,4 +8,3 @@ project(
 
   author: "Alexey Petrushin",
   homepage: "http://github.com/alexeypetrushin/class_loader"
-)
