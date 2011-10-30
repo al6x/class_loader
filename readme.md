@@ -17,7 +17,7 @@ SomeClass
 SomeNamespace::AnotherClass
 ```
 
-No need for `require` or `autoload`:
+No need for `require` or `autoload` and writing code like this:
 
 ``` ruby
 require 'some_class'
