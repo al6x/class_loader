@@ -5,28 +5,10 @@ describe 'Autoloading classes' do
   with_tmp_spec_dir
 
   after do
+    remove_constants :SomeNamespace, :SomeClass, :AnotherClass, :Tmp
+
     ClassLoader.loaded_classes.clear
     ClassLoader.watcher.stop
-
-    remove_constants %w(
-      SomeNamespace
-      AnotherNamespace
-
-      SomeClass
-      AnotherClass
-
-      BasicSpec
-      OnlyOnceSpec
-      NamespaceTypeResolving NamespaceIsAlreadyDefinedAsClass
-      InvalidInfinityLoopClassName
-      AnonymousSpec
-      AnotherNamespace
-      ClassReloadingSpec
-      UnloadOldClass
-      PreloadingSpec
-      UnderscoredNamespace
-      Tmp
-    )
   end
 
   it "basics" do
