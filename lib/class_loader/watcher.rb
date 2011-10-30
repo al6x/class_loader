@@ -33,6 +33,7 @@ class ClassLoader::Watcher
               class_file_name = class_path.sub "#{path}/", ''
               warn "reloading #{class_file_name}"
               load class_file_name
+              files[class_path] = updated_at
             end
           else
             files[class_path] = updated_at

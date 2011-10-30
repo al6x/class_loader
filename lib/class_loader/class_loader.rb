@@ -72,20 +72,21 @@ module ClassLoader
       end
     end
 
-    # Dynamic class loading is not thread safe (known Ruby bug), to workaround it
-    # You can forcefully preload all Your classes in production when Your app starts.
-    def preload path
+    # Eagerly load all classes in paths.
+    def preload *paths
       monitor.synchronize do
-        Dir.glob("#{path}/**/*.rb").each do |class_path|
-          class_file_name = class_path.sub("#{path}/", '').sub(/\.rb$/, '')
-          require class_file_name
+        paths.each do |path|
+          Dir.glob("#{path}/**/*.rb").each do |class_path|
+            class_file_name = class_path.sub("#{path}/", '').sub(/\.rb$/, '')
+            require class_file_name
+          end
         end
       end
     end
 
     # Watch and reload files.
-    def watch path
-      watcher.paths << path
+    def watch *paths
+      paths.each{|path| watcher.paths << path}
       watcher.start
     end
 

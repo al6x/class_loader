@@ -1,4 +1,4 @@
-# Automatically find, load and reload classes
+# ClassLoader automatically finds, loads and reloads classes
 
 Suppose there's following directory structure:
 
@@ -8,7 +8,7 @@ Suppose there's following directory structure:
         /another_class.rb   # class SomeNamespace:AnotherClass; end
       /some_namespace.rb    # module SomeNamespace; end
 
-All these classes will be loaded automatically, on demand:
+All these classes will be loaded automatically:
 
 ``` ruby
 require 'class_loader'
@@ -17,22 +17,30 @@ SomeClass
 SomeNamespace::AnotherClass
 ```
 
-No need for require:
+No need for `require` or `autoload`:
 
 ``` ruby
 require 'some_class'
 require 'some_namespace'
 require 'some_namespace/another_class'
-```
 
-or autoload:
-
-``` ruby
 autoload :SomeClass,      'some_class'
 autoload :SomeNamespace,  'some_namespace'
 module SomeNamespace
   autoload :AnotherClass, 'some_namespace/another_class'
 end
+```
+
+You can also tell it to watch and reload changes:
+
+``` ruby
+ClassLoader.watch 'my_app/lib'
+```
+
+Or preload classes eagerly:
+
+``` ruby
+ClassLoader.preload 'my_app/lib'
 ```
 
 ## Installation
