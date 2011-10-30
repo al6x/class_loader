@@ -88,6 +88,17 @@ describe 'Autoloading classes' do
     end
   end
 
+  it "after" do
+    with_load_path "#{spec_dir}/after" do
+      ClassLoader.after 'SomeClass' do |klass|
+        klass.class_eval do
+          def self.extension; :ok end
+        end
+      end
+      SomeClass.extension.should == :ok
+    end
+  end
+
   it "should reload class files" do
     with_load_path "#{spec_dir}/reloading" do
       watcher = ClassLoader.watcher

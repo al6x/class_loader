@@ -31,19 +31,27 @@ module SomeNamespace
 end
 ```
 
-You can also tell it to watch and reload changes:
+Watching and reloading changed classes:
 
 ``` ruby
 ClassLoader.watch 'my_app/lib'
 ```
 
-Or preload classes eagerly:
+Preload classes eagerly:
 
 ``` ruby
 ClassLoader.preload 'my_app/lib'
 ```
 
-It's also very small, sources are about 150 lines, (third of it are comments).
+Execute callbacks after loading class:
+
+``` ruby
+ClassLoader.after 'SomeClass' do |klass|
+  klass.include SomeModule
+end
+```
+
+It's also very small, sources are about 150 lines (and third of it are comments).
 
 ## Installation
 

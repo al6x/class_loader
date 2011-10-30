@@ -2,7 +2,7 @@ require 'class_loader/support'
 require 'monitor'
 
 module ClassLoader
-  @loaded_classes = {}
+  @loaded_classes, @after_callbacks = {}, {}
   @monitor = Monitor.new
   class << self
     attr_reader :loaded_classes, :monitor
@@ -58,6 +58,9 @@ module ClassLoader
             # Getting the class itself.
             klass = namespace ? namespace.const_get(const, false) : Object.const_get(const, false)
 
+            # Firing after callbacks.
+            if callbacks = after_callbacks[klass.name] then callbacks.each{|c| c.call klass} end
+
             loaded_classes[class_name] = klass
 
             return klass
@@ -86,7 +89,7 @@ module ClassLoader
 
     # Watch and reload files.
     def watch *paths
-      paths.each{|path| watcher.paths << path}
+      paths.each{|path| watcher.paths << path unless watcher.paths.include? path}
       watcher.start
     end
 
@@ -95,11 +98,17 @@ module ClassLoader
       @watcher ||= ClassLoader::Watcher.new monitor
     end
 
+    def after class_name, &block
+      (@after_callbacks[class_name] ||= []) << block
+    end
+
     def filter_backtrace backtrace
       backtrace.reject{|path| path.include?("/lib/class_loader") or path.include?('monitor.rb')}
     end
 
     protected
+      attr_reader :after_callbacks
+
       # Use this method to define class name to file name mapping, by default it uses underscored paths,
       # but You can override this method to use camel case for example.
       def get_file_name class_name
