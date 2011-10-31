@@ -24,11 +24,12 @@ module ClassLoader
         namespace = eval "#{name_hack(namespace)}" if namespace
 
         # Hierarchically searching for class name.
-        path_hierarchy = []
+        hierarchy = {}
         begin
           class_name = namespace ? "#{namespace.name}::#{const}" : const.to_s
           class_file_name = get_file_name class_name
-          path_hierarchy << class_file_name
+          binding = namespace || Object
+          hierarchy[class_file_name] = binding
 
           # Trying to load class file, if its exist.
           loaded = begin
@@ -52,13 +53,13 @@ module ClassLoader
             end
 
             # Checking that class defined in correct namespace, not the another one.
-            unless namespace ? namespace.const_defined?(const, false) : Object.const_defined?(const, false)
+            unless binding.const_defined? const, false
               msg = "class name '#{class_name}' doesn't correspond to file name '#{class_file_name}'!"
               raise NameError, msg, filter_backtrace(caller)
             end
 
             # Getting the class itself.
-            klass = namespace ? namespace.const_get(const, false) : Object.const_get(const, false)
+            klass = binding.const_get const, false
 
             # Firing after callbacks.
             if callbacks = after_callbacks[klass.name] then callbacks.each{|c| c.call klass} end
@@ -74,11 +75,11 @@ module ClassLoader
         end until global_also_tried
 
         # If file not found trying to find directory and evaluate it as a module.
-        path_hierarchy.each do |path|
+        hierarchy.each do |path, binding|
           $LOAD_PATH.each do |base|
             next unless File.directory? File.join(base, path)
             amodule = Module.new
-            (namespace || Object).const_set const, amodule
+            binding.const_set const, amodule
             return amodule
           end
         end
