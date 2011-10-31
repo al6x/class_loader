@@ -24,9 +24,11 @@ module ClassLoader
         namespace = eval "#{name_hack(namespace)}" if namespace
 
         # Hierarchically searching for class name.
+        path_hierarchy = []
         begin
           class_name = namespace ? "#{namespace.name}::#{const}" : const.to_s
           class_file_name = get_file_name class_name
+          path_hierarchy << class_file_name
 
           # Trying to load class file, if its exist.
           loaded = begin
@@ -70,6 +72,16 @@ module ClassLoader
           global_also_tried = namespace == nil
           namespace = Module.namespace_for namespace.name if namespace
         end until global_also_tried
+
+        # If file not found trying to find directory and evaluate it as a module.
+        path_hierarchy.each do |path|
+          $LOAD_PATH.each do |base|
+            next unless File.directory? File.join(base, path)
+            amodule = Module.new
+            (namespace || Object).const_set const, amodule
+            return amodule
+          end
+        end
 
         return nil
       end

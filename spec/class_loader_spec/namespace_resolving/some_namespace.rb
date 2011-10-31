@@ -1,2 +1,2 @@
-module SomeNamespace
+class SomeNamespace
 end

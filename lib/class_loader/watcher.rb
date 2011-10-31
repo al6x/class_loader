@@ -31,8 +31,7 @@ class ClassLoader::Watcher
           if last_updated_at = files[class_path]
             if last_updated_at < updated_at
               class_file_name = class_path.sub "#{path}/", ''
-              warn "reloading #{class_file_name}"
-              load class_file_name
+              reload class_file_name
               files[class_path] = updated_at
             end
           else
@@ -44,5 +43,14 @@ class ClassLoader::Watcher
   end
 
   protected
+    def reload file
+      begin
+        load file
+        warn "file '#{file}' reloaded."
+      rescue => e
+        warn "can't reload '#{file}' file (#{e.message})!"
+      end
+    end
+
     attr_reader :files, :thread, :monitor
 end

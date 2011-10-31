@@ -56,8 +56,15 @@ describe 'Autoloading classes' do
     with_load_path "#{spec_dir}/namespace_resolving" do
       SomeNamespace
 
-      SomeNamespace.class.should == Module
+      SomeNamespace.class.should == Class
       SomeNamespace::SomeClass
+    end
+  end
+
+  it "should automatically generate modules corresponding to folders" do
+    with_load_path "#{spec_dir}/autogeneration" do
+      SomeNamespace::SomeClass
+      SomeNamespace.class.should == Module
     end
   end
 
