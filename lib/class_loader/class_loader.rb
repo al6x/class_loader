@@ -2,6 +2,10 @@ require 'class_loader/support'
 require 'monitor'
 
 module ClassLoader
+  # Sometimes other libraries try to load some const to check if
+  # it exist, and we don't want ClassLoader automatically load it.
+  SKIP = [/^Test:?/, /^RSpec:?/]
+
   @loaded_classes, @after_callbacks = {}, {}
   @monitor = Monitor.new
   class << self
@@ -30,6 +34,9 @@ module ClassLoader
           class_file_name = get_file_name class_name
           binding = namespace || Object
           hierarchy[class_file_name] = binding
+
+          # Skip some constants.
+          return nil if SKIP.any?{|re| class_name =~ re}
 
           # Trying to load class file, if its exist.
           loaded = begin
