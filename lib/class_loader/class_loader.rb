@@ -5,7 +5,7 @@ module ClassLoader
   @loaded_classes, @after_callbacks = {}, {}
   @monitor = Monitor.new
   class << self
-    attr_reader :loaded_classes, :monitor
+    attr_reader :loaded_classes, :monitor, :after_callbacks
 
     # Hierarchically searching for class file, according to modules hierarchy.
     #
@@ -113,6 +113,14 @@ module ClassLoader
 
     def after class_name, &block
       (@after_callbacks[class_name] ||= []) << block
+
+      # Firing it immediatelly if class has been already loaded.
+      # Checking if constant exist without loading it.
+      names = class_name.gsub(/^::/, '').split('::')
+      const_defined = names.inject Object do |current, const|
+        current = current && current.const_defined?(const) && current.const_get(const)
+      end
+      block.call if const_defined
     end
 
     def filter_backtrace backtrace
@@ -120,8 +128,6 @@ module ClassLoader
     end
 
     protected
-      attr_reader :after_callbacks
-
       # Use this method to define class name to file name mapping, by default it uses underscored paths,
       # but You can override this method to use camel case for example.
       def get_file_name class_name

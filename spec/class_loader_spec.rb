@@ -8,6 +8,7 @@ describe 'Autoloading classes' do
     remove_constants :SomeNamespace, :SomeClass, :AnotherClass, :Tmp
 
     ClassLoader.loaded_classes.clear
+    ClassLoader.after_callbacks.clear
     ClassLoader.watcher.stop
   end
 
@@ -97,12 +98,18 @@ describe 'Autoloading classes' do
 
   it "after" do
     with_load_path "#{spec_dir}/after" do
+      exp = mock
+      exp.should_receive :callback_fired
       ClassLoader.after 'SomeClass' do |klass|
-        klass.class_eval do
-          def self.extension; :ok end
-        end
+        exp.callback_fired
       end
-      SomeClass.extension.should == :ok
+      SomeClass
+
+      # Should fire immediatelly if class has been already loaded.
+      exp.should_receive :fired_immediatelly
+      ClassLoader.after 'SomeClass' do |klass|
+        exp.fired_immediatelly
+      end
     end
   end
 
