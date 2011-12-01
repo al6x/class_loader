@@ -4,7 +4,7 @@ require 'monitor'
 module ClassLoader
   # Sometimes other libraries try to load some const to check if
   # it exist, and we don't want ClassLoader automatically load it.
-  SKIP = [/^Test:?/, /^RSpec:?/]
+  SKIP = %w(Test RSpec)
 
   @loaded_classes, @after_callbacks = {}, {}
   @monitor = Monitor.new
@@ -36,7 +36,7 @@ module ClassLoader
           hierarchy[class_file_name] = binding
 
           # Skip some constants.
-          return nil if SKIP.any?{|re| class_name =~ re}
+          return nil if SKIP.any?{|c| class_name == c or class_name.include?("#{c}::")}
 
           # Trying to load class file, if its exist.
           loaded = begin
@@ -61,7 +61,7 @@ module ClassLoader
 
             # Checking that class defined in correct namespace, not the another one.
             unless binding.const_defined? const, false
-              msg = "class name '#{class_name}' doesn't correspond to file name '#{class_file_name}'!"
+              msg = "class name #{class_name} doesn't correspond to file name '#{class_file_name}'!"
               raise NameError, msg, filter_backtrace(caller)
             end
 

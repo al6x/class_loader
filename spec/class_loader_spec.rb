@@ -71,7 +71,7 @@ describe 'Autoloading classes' do
 
   it "should recognize infinity loop" do
     with_load_path "#{spec_dir}/infinity_loop" do
-      -> {SomeClass}.should raise_error(/class name 'SomeClass' doesn't correspond to file name 'some_class'/)
+      -> {SomeClass}.should raise_error(/class name SomeClass doesn't correspond to file name 'some_class'/)
     end
   end
 
